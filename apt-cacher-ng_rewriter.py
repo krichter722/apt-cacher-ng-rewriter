@@ -121,7 +121,7 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
                     return True
                 return False
             def __match_debian__(url):
-                match = re.search("^http://(([^/]*).debian.org/(?P<tail>.*.deb$))", url)
+                match = re.search("^http://(([^/]*).debian.org/debian/(?P<tail>.*.deb$))", url)
                 if match != None:
                     try:
                         tail = "/"+match.group("tail")
