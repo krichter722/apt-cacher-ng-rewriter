@@ -136,6 +136,24 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
                     result_object.result = result
                     return True
                 return False
+            def __match_ubuntu_ppas__(url):
+                match = re.search("^http://(ppa.launchpad.net/(?P<user>[^/]+)/(?P<name>[^/]+)/ubuntu/(?P<tail>.*.deb$))", url)
+                if match != None:
+                    try:
+                        tail = "/"+match.group("tail")
+                        user = match.group("user")
+                        name = match.group("name")
+                    except IndexError:
+                        raise RuntimeError("The unexpected exception '%s' occured which must have resulted for malious URL input" % (str(ex),))
+                    url_new = __rewrite_url__(url,
+                        repo_name="ppa.launchpad.net/%s/%s/ubuntu" % (user, name,),
+                        tail=tail)
+                    logger.info("rewriting to '%s'" % (url_new,))
+                    result = RESULT_OK
+                    result_object.url_new = url_new
+                    result_object.result = result
+                    return True
+                return False
 
             logger.info("id=%s; url=%s" % (id, url))
             if url.startswith(apt_cacher_ng_url):
@@ -151,6 +169,8 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
             elif __match_ubuntu_security__(url):
                 pass
             elif __match_debian__(url):
+                pass
+            elif __match_ubuntu_ppas__(url):
                 pass
             else:
                 logger.debug("skipping line '%s'" % (line,))
