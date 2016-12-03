@@ -121,6 +121,21 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
                     return True
                 return False
             def __match_debian__(url):
+                """handles both special archive.debian.org (for archived releases) and all mirrors of supported releases"""
+                match = re.search("^http://archive.debian.org/debian/(?P<tail>.*.deb$)", url)
+                if match != None:
+                    try:
+                        tail = "/"+match.group("tail")
+                    except IndexError:
+                        raise RuntimeError("The unexpected exception '%s' occured which must have resulted for malious URL input" % (str(ex),))
+                    url_new = __rewrite_url__(url,
+                        repo_name="archive.debian.org/debian",
+                        tail=tail)
+                    logger.info("rewriting to '%s'" % (url_new,))
+                    result = RESULT_OK
+                    result_object.url_new = url_new
+                    result_object.result = result
+                    return True
                 match = re.search("^http://(([^/]*).debian.org/debian/(?P<tail>.*.deb$))", url)
                 if match != None:
                     try:
