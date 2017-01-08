@@ -104,6 +104,23 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
                     result_object.result = result
                     return True
                 return False
+            def __match_ubuntu_ddebs__(url):
+                match = re.search("^http://ddebs.ubuntu.com/(?P<tail>.*.d?deb$)", url)
+                    # downloads `ddeb` packages (instead of `deb` packages)
+                if match != None:
+                    try:
+                        tail = "/"+match.group("tail")
+                    except IndexError:
+                        raise RuntimeError("The unexpected exception '%s' occured which must have resulted for malious URL input" % (str(ex),))
+                    url_new = __rewrite_url__(url,
+                        repo_name="ddebs.ubuntu.com",
+                        tail=tail)
+                    logger.info("rewriting to '%s'" % (url_new,))
+                    result = RESULT_OK
+                    result_object.url_new = url_new
+                    result_object.result = result
+                    return True
+                return False
             def __match_ubuntu_security__(url):
                 match = re.search("^http://(security.ubuntu.com/ubuntu/(?P<tail>.*.deb$))", url)
                 if match != None:
@@ -180,6 +197,8 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
                 result_object.url_new = url
                 result_object.result = RESULT_ERR
             elif __match_ubuntu_archive__(url):
+                pass
+            elif __match_ubuntu_ddebs__(url):
                 pass
             elif __match_ubuntu_security__(url):
                 pass
