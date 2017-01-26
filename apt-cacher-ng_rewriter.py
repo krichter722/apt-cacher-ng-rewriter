@@ -55,6 +55,7 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
     logger_handler.setFormatter(logger_formatter)
     logger.addHandler(logger_handler)
 
+    logger.debug("rewrite helper 'apt-cacher-ng_rewriter.py' started")
     def __rewrite_url__(url, tail, repo_name=None):
         """At some point it became necessary to use the repo_name in the redirection URL which wasn't necessary before (reason unclear)"""
         urlsplit_result = urlparse.urlsplit(url)
