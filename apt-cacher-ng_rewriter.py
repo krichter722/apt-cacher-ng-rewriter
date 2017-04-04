@@ -27,6 +27,12 @@ import traceback
 logger = logging.getLogger(__name__)
 logger_formatter = logging.Formatter('%(asctime)s:%(message)s')
 
+# Adding a new repository requires:
+# - defining a __match_[name]__ function taking the processed URL as parameter
+# - adding the defined match function to the check chain below
+# - add configuration files to `apt-cacher-ng` (not yet sure about correct way
+# because the default configuration file is documentation-free)
+
 # result code string according to http://wiki.squid-cache.org/Features/Redirectors
 RESULT_ERR = "ERR" # indicates "Success. No change for this URL."
 RESULT_OK = "OK" # indicates "Success. A new URL is presented"
