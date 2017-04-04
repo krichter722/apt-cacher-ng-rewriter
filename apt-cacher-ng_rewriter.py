@@ -209,7 +209,30 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
                     result_object.result = result
                     return True
                 return False
-
+            def __match_winehq__(url):
+                # This function doesn't behave based on logic or anything anyone
+                # can understand because wine download URLs aren't even logged
+                # with the `logger.info("id=...` statement below which really
+                # captures any request.
+                # There might be another issue related to server timeouts with
+                # HTTP error 503 and a `first byte timeout` which might be
+                # related to the cache server used on wine's side -> just don't
+                # care about this
+                match = re.search("^https?://(dl.winehq.org/wine-builds/ubuntu/(?P<tail>.*.deb$))", url)
+                if match != None:
+                    try:
+                        tail = "/"+match.group("tail")
+                    except IndexError:
+                        raise RuntimeError("The unexpected exception '%s' occured which must have resulted for malious URL input" % (str(ex),))
+                    url_new = __rewrite_url__(url,
+                        repo_name="winehq", # needs the shortcuts specified in apt-cacher-ng configuration (unclear why)
+                        tail=tail)
+                    logger.info("rewriting to '%s'" % (url_new,))
+                    result = RESULT_OK
+                    result_object.url_new = url_new
+                    result_object.result = result
+                    return True
+                return False
             logger.info("id=%s; url=%s" % (id, url))
             if url.startswith(apt_cacher_ng_url):
                 logger.info("skipping URL starting with apt-cacher-ng URL")
@@ -230,6 +253,8 @@ def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng
             elif __match_debian__(url):
                 pass
             elif __match_ubuntu_ppas__(url):
+                pass
+            elif __match_winehq__(url):
                 pass
             else:
                 logger.debug("skipping line '%s'" % (line,))
