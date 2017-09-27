@@ -47,7 +47,7 @@ class ResultObject(object):
 @plac.annotations(log_file_path=("Path to a file used for logging. Make sure the file exists and is writable by the user invoking this squid helper", "option"),
     debug=("Enables debug messages in logging", "flag"),
     apt_cacher_ng_url=("The URL of the apt-cacher-ng instance to use", "option"))
-def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng_rewriter.log", debug=False, apt_cacher_ng_url="http://192.168.178.20:3142"):
+def apt_cacher_ng_rewriter(log_file_path="/usr/local/squid/var/log/apt-cacher-ng_rewriter.log", debug=False, apt_cacher_ng_url="http://192.168.178.26:3142"):
     if log_file_path == None:
         logger_handler = logging.StreamHandler(stream=sys.stderr) # must not log to stdout because it's used for communication with squid
     else:
